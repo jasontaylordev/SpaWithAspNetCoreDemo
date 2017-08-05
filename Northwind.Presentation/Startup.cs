@@ -8,8 +8,11 @@ using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Northwind.Application;
+using Northwind.Persistance;
+using Microsoft.EntityFrameworkCore;
 
-namespace Northwind_Presentation
+namespace Northwind.Presentation
 {
     public class Startup
     {
@@ -29,11 +32,15 @@ namespace Northwind_Presentation
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            services.AddDbContext<NorthwindContext>(options => 
+                    options.UseSqlServer(Configuration.GetConnectionString("Northwind")));
+
+            services.AddMvc();            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
+                NorthwindContext context)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -62,6 +69,8 @@ namespace Northwind_Presentation
                     name: "spa-fallback",
                     defaults: new { controller = "Home", action = "Index" });
             });
+
+            NorthwindInitializer.Initialize(context);
         }
     }
 }

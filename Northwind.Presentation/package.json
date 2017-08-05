@@ -1,5 +1,5 @@
 {
-  "name": "Northwind_Presentation",
+  "name": "Northwind.Presentation",
   "version": "0.0.0",
   "scripts": {
     "test": "karma start ClientApp/test/karma.conf.js"

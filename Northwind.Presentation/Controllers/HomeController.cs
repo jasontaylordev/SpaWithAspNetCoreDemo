@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Northwind_Presentation.Controllers
+namespace Northwind.Presentation.Controllers
 {
     public class HomeController : Controller
     {
