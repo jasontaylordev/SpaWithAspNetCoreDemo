@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -40,14 +41,16 @@ namespace Northwind.Presentation.Controllers
 
         // GET: api/Customers
         [HttpGet]
-        public async Task<IEnumerable<CustomerListModel>> GetCustomers()
+        [ProducesResponseType(typeof(IEnumerable<CustomerListModel>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCustomers()
         {
-            return await _getCustomerListQuery.Execute();
+            return  Ok(await _getCustomerListQuery.Execute());
         }
 
         // GET: api/Customers/5
         [HttpGet("{id}")]
         [ValidateCustomerExists]
+        [ProducesResponseType(typeof(CustomerDetailModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCustomer([FromRoute] string id)
         {
             return Ok(await _getCustomerDetailQuery.Execute(id));

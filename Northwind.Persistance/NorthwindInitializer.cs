@@ -15,9 +15,6 @@ namespace Northwind.Persistance
 
         public static void Initialize(NorthwindContext context)
         {
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
-
             if (context.Customers.Any())
             {
                 return; // Db has been seeded

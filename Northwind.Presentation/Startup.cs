@@ -15,6 +15,7 @@ using Northwind.Application.Customers.Queries.GetCustomerList;
 using Northwind.Application.Customers.Commands.CreateCustomer;
 using Northwind.Application.Customers.Commands.UpdateCustomer;
 using Northwind.Application.Customers.Commands.DeleteCustomer;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Northwind.Presentation
 {
@@ -36,10 +37,15 @@ namespace Northwind.Presentation
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddDbContext<NorthwindContext>(options => 
+            services.AddDbContext<NorthwindContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("Northwind")));
 
-            services.AddMvc();            
+            services.AddMvc();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Northwind API", Version = "v1" });
+            });
 
             // Add application services.
             services.AddScoped<IGetCustomerDetailQuery, GetCustomerDetailQuery>();
@@ -50,7 +56,7 @@ namespace Northwind.Presentation
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
                 NorthwindContext context)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
@@ -59,7 +65,8 @@ namespace Northwind.Presentation
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions {
+                app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
+                {
                     HotModuleReplacement = true
                 });
             }
@@ -75,10 +82,22 @@ namespace Northwind.Presentation
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+            });
 
-                routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
+            app.MapWhen(a => !a.Request.Path.Value.StartsWith("/swagger"), builder =>
+                builder.UseMvc(routes =>
+                {
+                    routes.MapSpaFallbackRoute(
+                        name: "spa-fallback",
+                        defaults: new { controller = "Home", action = "Index" });
+                })
+            );
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Northwind API V1");
             });
 
             NorthwindInitializer.Initialize(context);
