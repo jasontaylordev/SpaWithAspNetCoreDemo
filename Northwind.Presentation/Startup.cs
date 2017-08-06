@@ -10,6 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Northwind.Persistance;
 using Microsoft.EntityFrameworkCore;
+using Northwind.Application.Customers.Queries.GetCustomerDetail;
+using Northwind.Application.Customers.Queries.GetCustomerList;
+using Northwind.Application.Customers.Commands.CreateCustomer;
+using Northwind.Application.Customers.Commands.UpdateCustomer;
+using Northwind.Application.Customers.Commands.DeleteCustomer;
 
 namespace Northwind.Presentation
 {
@@ -35,6 +40,13 @@ namespace Northwind.Presentation
                     options.UseSqlServer(Configuration.GetConnectionString("Northwind")));
 
             services.AddMvc();            
+
+            // Add application services.
+            services.AddScoped<IGetCustomerDetailQuery, GetCustomerDetailQuery>();
+            services.AddScoped<IGetCustomerListQuery, GetCustomerListQuery>();
+            services.AddScoped<ICreateCustomerCommand, CreateCustomerCommand>();
+            services.AddScoped<IUpdateCustomerCommand, UpdateCustomerCommand>();
+            services.AddScoped<IDeleteCustomerCommand, DeleteCustomerCommand>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

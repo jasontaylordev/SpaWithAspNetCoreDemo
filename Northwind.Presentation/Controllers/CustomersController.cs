@@ -3,6 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Northwind.Application.Customers.Commands.CreateCustomer;
+using Northwind.Application.Customers.Commands.DeleteCustomer;
+using Northwind.Application.Customers.Commands.UpdateCustomer;
+using Northwind.Application.Customers.Queries.GetCustomerDetail;
+using Northwind.Application.Customers.Queries.GetCustomerList;
 using Northwind.Domain;
 using Northwind.Persistance;
 
@@ -12,25 +17,39 @@ namespace Northwind.Presentation.Controllers
     [Route("api/Customers")]
     public class CustomersController : Controller
     {
-        private readonly NorthwindContext _context;
+        private readonly IGetCustomerDetailQuery _getCustomerDetailQuery;
+        private readonly IGetCustomerListQuery _getCustomerListQuery;
+        private readonly ICreateCustomerCommand _createCustomerCommand;
+        private readonly IUpdateCustomerCommand _updateCustomerCommand;
+        private readonly IDeleteCustomerCommand _deleteCustomerCommand;
 
-        public CustomersController(NorthwindContext context)
+        public CustomersController(
+            IGetCustomerListQuery getCustomerListQuery,
+            IGetCustomerDetailQuery getCustomerDetailQuery,            
+            ICreateCustomerCommand createCustomerCommand,
+            IUpdateCustomerCommand updateCustomerCommand,
+            IDeleteCustomerCommand deleteCustomerCommand)
         {
-            _context = context;
+            _getCustomerListQuery = getCustomerListQuery;
+            _getCustomerDetailQuery = getCustomerDetailQuery;            
+            _createCustomerCommand = createCustomerCommand;
+            _updateCustomerCommand = updateCustomerCommand;
+            _deleteCustomerCommand = deleteCustomerCommand;
+
         }
 
         // GET: api/Customers
         [HttpGet]
-        public async Task<IEnumerable<Customer>> GetCustomers()
+        public async Task<IEnumerable<CustomerListModel>> GetCustomers()
         {
-            return await _context.Customers.ToListAsync();
+            return await _getCustomerListQuery.Execute();
         }
 
         // GET: api/Customers/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCustomer([FromRoute] string id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _getCustomerDetailQuery.Execute(id);
 
             if (customer == null)
             {
@@ -42,23 +61,21 @@ namespace Northwind.Presentation.Controllers
 
         // POST: api/Customers
         [HttpPost]
-        public async Task<IActionResult> PostCustomer([FromBody] Customer customer)
+        public async Task<IActionResult> PostCustomer([FromBody] CreateCustomerModel customer)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            _context.Customers.Add(customer);
-            
-            await _context.SaveChangesAsync();
+            await _createCustomerCommand.Execute(customer);
 
             return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
         }
 
         // PUT: api/Customers/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCustomer([FromRoute] string id, [FromBody] Customer customer)
+        public async Task<IActionResult> PutCustomer([FromRoute] string id, [FromBody] UpdateCustomerModel customer)
         {
             if (!ModelState.IsValid)
             {
@@ -70,24 +87,7 @@ namespace Northwind.Presentation.Controllers
                 return BadRequest();
             }
 
-            var entity = await _context.Customers.FindAsync(id);
-            if (entity == null)
-            {
-                return NotFound();
-            }
-
-            entity.CompanyName = customer.CompanyName;
-            entity.ContactTitle = customer.ContactTitle;
-            entity.ContactName = customer.ContactName;
-            entity.Address = customer.Address;
-            entity.City = customer.City;
-            entity.Country = customer.Country;
-            entity.PostalCode = customer.PostalCode;
-            entity.Region = customer.Region;
-            entity.Phone = customer.Phone;
-            entity.Fax = customer.Fax;
-
-            await _context.SaveChangesAsync();
+            await _updateCustomerCommand.Execute(customer);
 
             return NoContent();
         }
@@ -101,17 +101,9 @@ namespace Northwind.Presentation.Controllers
                 return BadRequest(ModelState);
             }
 
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
+            await _deleteCustomerCommand.Execute(id);
 
-            _context.Customers.Remove(customer);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(customer);
+            return Ok();
         }
     }
 }
