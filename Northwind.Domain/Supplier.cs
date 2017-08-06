@@ -5,16 +5,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Northwind.Domain
 {
-    public partial class Customer
+    public partial class Supplier
     {
-        public Customer()
+        public Supplier()
         {
-            Orders = new HashSet<Order>();
+            Products = new HashSet<Product>();
         }
 
-        [Column("CustomerID", TypeName = "nchar(5)")]
+        [Column("SupplierID")]
         [Key]
-        public string CustomerId { get; set; }
+        public int SupplierId { get; set; }
         [Required]
         [MaxLength(40)]
         public string CompanyName { get; set; }
@@ -36,8 +36,10 @@ namespace Northwind.Domain
         public string Phone { get; set; }
         [MaxLength(24)]
         public string Fax { get; set; }
+        [Column(TypeName = "ntext")]
+        public string HomePage { get; set; }
 
-        [InverseProperty("Customer")]
-        public virtual ICollection<Order> Orders { get; set; }
+        [InverseProperty("Supplier")]
+        public virtual ICollection<Product> Products { get; set; }
     }
 }
