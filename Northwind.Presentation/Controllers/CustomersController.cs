@@ -10,10 +10,10 @@ using Northwind.Application.Customers.Queries.GetCustomerDetail;
 using Northwind.Application.Customers.Queries.GetCustomerList;
 using Northwind.Domain;
 using Northwind.Persistance;
+using Northwind.Presentation.Filters;
 
 namespace Northwind.Presentation.Controllers
 {
-    [Produces("application/json")]
     [Route("api/Customers")]
     public class CustomersController : Controller
     {
@@ -47,27 +47,17 @@ namespace Northwind.Presentation.Controllers
 
         // GET: api/Customers/5
         [HttpGet("{id}")]
+        [ValidateCustomerExists]
         public async Task<IActionResult> GetCustomer([FromRoute] string id)
         {
-            var customer = await _getCustomerDetailQuery.Execute(id);
-
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(customer);
+            return Ok(await _getCustomerDetailQuery.Execute(id));
         }
 
         // POST: api/Customers
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> PostCustomer([FromBody] CreateCustomerModel customer)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             await _createCustomerCommand.Execute(customer);
 
             return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
@@ -75,18 +65,10 @@ namespace Northwind.Presentation.Controllers
 
         // PUT: api/Customers/5
         [HttpPut("{id}")]
+        [ValidateModel]
+        [ValidateCustomerExists]
         public async Task<IActionResult> PutCustomer([FromRoute] string id, [FromBody] UpdateCustomerModel customer)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != customer.CustomerId)
-            {
-                return BadRequest();
-            }
-
             await _updateCustomerCommand.Execute(customer);
 
             return NoContent();
@@ -94,16 +76,12 @@ namespace Northwind.Presentation.Controllers
 
         // DELETE: api/Customers/5
         [HttpDelete("{id}")]
+        [ValidateCustomerExists]
         public async Task<IActionResult> DeleteCustomer([FromRoute] string id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             await _deleteCustomerCommand.Execute(id);
 
-            return Ok();
+            return NoContent();
         }
     }
 }
