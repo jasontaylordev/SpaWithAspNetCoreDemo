@@ -6,11 +6,20 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
 using Northwind.Domain;
+using Northwind.Application.Tests.Infrastructure;
 
-namespace Northwind.Application.Tests
+namespace Northwind.Application.Tests.Customers.Queries
 {
+    [Collection("QueryCollection")]
     public class GetCustomerListQueryTests
     {
+        private readonly NorthwindContext _context;
+
+        public GetCustomerListQueryTests(QueryTestFixture fixture)
+        {
+            _context = fixture.Context;
+        }
+
         [Fact]
         public async Task ShouldReturnAllCustomers()
         {
