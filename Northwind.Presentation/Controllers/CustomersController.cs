@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Northwind.Application.Customers.Commands.CreateCustomer;
 using Northwind.Application.Customers.Commands.DeleteCustomer;
 using Northwind.Application.Customers.Commands.UpdateCustomer;
@@ -15,7 +14,7 @@ using Northwind.Presentation.Filters;
 
 namespace Northwind.Presentation.Controllers
 {
-    [Route("api/Customers")]
+    [Route("api/[controller]")]
     public class CustomersController : Controller
     {
         private readonly IGetCustomerDetailQuery _getCustomerDetailQuery;
@@ -68,8 +67,8 @@ namespace Northwind.Presentation.Controllers
 
         // PUT: api/Customers/5
         [HttpPut("{id}")]
-        [ValidateModel]
-        [ValidateCustomerExists]
+        [ValidateModel, ValidateCustomerExists]
+        [ProducesResponseType(typeof(CustomerDetailModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PutCustomer([FromRoute] string id, [FromBody] UpdateCustomerModel customer)
         {
             await _updateCustomerCommand.Execute(customer);

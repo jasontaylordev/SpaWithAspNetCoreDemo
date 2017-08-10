@@ -15,7 +15,8 @@ using Northwind.Application.Customers.Queries.GetCustomerList;
 using Northwind.Application.Customers.Commands.CreateCustomer;
 using Northwind.Application.Customers.Commands.UpdateCustomer;
 using Northwind.Application.Customers.Commands.DeleteCustomer;
-using Swashbuckle.AspNetCore.Swagger;
+using NSwag.AspNetCore;
+using System.Reflection;
 
 namespace Northwind.Presentation
 {
@@ -42,10 +43,10 @@ namespace Northwind.Presentation
 
             services.AddMvc();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "Northwind API", Version = "v1" });
-            });
+            // services.AddSwaggerGen(c =>
+            // {
+            //     c.SwaggerDoc("v1", new Info { Title = "Northwind API", Version = "v1" });
+            // });
 
             // Add application services.
             services.AddScoped<IGetCustomerDetailQuery, GetCustomerDetailQuery>();
@@ -77,6 +78,11 @@ namespace Northwind.Presentation
 
             app.UseStaticFiles();
 
+            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, new SwaggerUiSettings
+            {
+                DefaultUrlTemplate = "{controller}/{action}/{id?}"
+            });
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -93,12 +99,12 @@ namespace Northwind.Presentation
                 })
             );
 
-            app.UseSwagger();
+            // app.UseSwagger();
 
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Northwind API V1");
-            });
+            // app.UseSwaggerUI(c =>
+            // {
+            //     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Northwind API V1");
+            // });
 
             NorthwindInitializer.Initialize(context);
         }

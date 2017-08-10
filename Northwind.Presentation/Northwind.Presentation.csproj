@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="1.1.2" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0" />
+    <PackageReference Include="NSwag.AspNetCore" Version="11.3.3" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.1" />
